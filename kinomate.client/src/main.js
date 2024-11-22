@@ -5,7 +5,6 @@ import store from "./store";
 import vuetify from "./plugins/vuetify";
 import { loadFonts } from "./plugins/webfontloader";
 import Cookies from "js-cookie";
-import toasted from "vue-toasted";
 
 loadFonts();
 
@@ -19,5 +18,4 @@ app
   .use(router)
   .use(store)
   .use(vuetify)
-  .use(toasted, { duration: 5000 })
   .mount("#app");

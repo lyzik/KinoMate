@@ -364,3 +364,5 @@ FodyWeavers.xsd
 
 #Sql lite .db file
 *.db
+*.db-shm
+*.db-wal

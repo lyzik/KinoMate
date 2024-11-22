@@ -48,6 +48,9 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <v-snackbar v-model="snackbar.show" top>
+      {{ snackbar.text }}
+    </v-snackbar>
   </v-container>
 </template>
 
@@ -61,6 +64,7 @@ export default {
       showChangePasswordDialog: false,
       currentPassword: "",
       newPassword: "",
+      snackbar: { show: false, color: "red", text: "" },
     };
   },
   created() {
@@ -90,12 +94,15 @@ export default {
           this.showChangePasswordDialog = false;
           this.currentPassword = "";
           this.newPassword = "";
-          this.$toasted.show("Password changed successfully.");
+          this.snackbar.text = "Password has been changed ";
+          this.snackbar.show = true;
+          this.snackbar.color = "green";
         }
       } catch (error) {
-        this.$toasted.show("Error changing password: " + error.response.data, {
-          type: "error",
-        });
+        console.error("Password change error:", error);
+        this.snackbar.text = "Password change error: " + error.message;
+        this.snackbar.show = true;
+        this.snackbar.color = "red";
       }
     },
   },
