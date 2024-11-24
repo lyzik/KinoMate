@@ -1,6 +1,7 @@
 ﻿using KinoMate.server.Database;
 using KinoMate.server.Database.Auth;
 using KinoMate.server.Models;
+using KinoMate.server.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -33,7 +34,6 @@ namespace KinoMate.server.Controllers
             if (user != null && VerifyPassword(user, model.Password))
             {
                 var token = GenerateJwtToken(user.Username);
-                // return username in user and token
                 return Ok(new
                 {
                     User = new { user.Username, user.Email },
@@ -50,9 +50,9 @@ namespace KinoMate.server.Controllers
             var existingUser = await _dbContext.Users.SingleOrDefaultAsync(u => u.Username == model.Username);
             var existingEmail = await _dbContext.Users.SingleOrDefaultAsync(u => u.Email.ToLower() == model.Email.ToLower());
             if (existingUser != null)
-                return BadRequest("The specified username occupied.");
+                return BadRequest(new { message = "The specified username occupied." });
             if (existingEmail != null)
-                return BadRequest("The account with this email address is taken.");
+                return BadRequest(new { message = "The account with this email address is taken." });
 
             var user = new User
             {
@@ -63,6 +63,10 @@ namespace KinoMate.server.Controllers
 
             _dbContext.Users.Add(user);
             await _dbContext.SaveChangesAsync();
+
+
+            EmailServices emailServices = new EmailServices();
+            emailServices.SendEmailAsync(model.Email,"Kinomate - Account has been created", "Thank you for register on our website.", null);
 
             return Ok("The user has been successfully registered.");
         }

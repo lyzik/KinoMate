@@ -2,14 +2,16 @@ import { createRouter, createWebHistory } from "vue-router";
 import HomeView from "../views/HomeView.vue";
 import LoginView from "@/views/Auth/LoginView.vue";
 import UserPanelView from "@/views/Auth/UserPanelView.vue";
-import Cookies from 'js-cookie'
+import RegisterView from "@/views/Auth/RegisterView.vue";
+import Cookies from "js-cookie";
 
 const requireAuth = (to, from, next) => {
-  const isAuthenticated = Cookies.get('token') !== null && Cookies.get('token') !== undefined;
+  const isAuthenticated =
+    Cookies.get("token") !== null && Cookies.get("token") !== undefined;
   if (isAuthenticated) {
     next();
   } else {
-    next('/login');
+    next("/login");
   }
 };
 
@@ -24,6 +26,11 @@ const routes = [
     path: "/login",
     name: "login",
     component: LoginView,
+  },
+  {
+    path: "/register",
+    name: "register",
+    component: RegisterView,
   },
   {
     path: "/user",

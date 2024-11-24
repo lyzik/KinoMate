@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <v-row justify="center">
-      <v-col cols="12" sm="8" md="4">
+      <v-col cols="12" sm="8" md="8" >
         <v-card class="elevation-12">
           <v-toolbar color="primary" dark>
             <v-toolbar-title>Login</v-toolbar-title>
@@ -33,7 +33,6 @@
     </v-row>
     <v-snackbar v-model="snackbar.show" top>
       {{ snackbar.text }}
-      <v-btn color="red" text @click="snackbar.show = false">Close</v-btn>
     </v-snackbar>
   </v-container>
 </template>
@@ -62,6 +61,7 @@ export default {
         console.error("Login error:", error);
         this.snackbar.text = "Login error: " + error.message;
         this.snackbar.show = true;
+        this.snackbar.duration = 1000;
       }
     },
   },
