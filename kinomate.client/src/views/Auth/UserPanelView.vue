@@ -108,3 +108,9 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.v-card, .v-card-title, .v-card-text, .v-list {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+</style>
