@@ -54,7 +54,7 @@
       };
     },
     mounted() {
-      const movieId = this.$route.params.id; // Assumes you are using Vue Router
+      const movieId = this.$route.params.id;
       this.fetchMovieDetails(movieId);
       this.fetchMovieGenres();
     },

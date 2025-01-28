@@ -4,6 +4,8 @@ namespace KinoMate.server.Models
 {
     public class MovieShort
     {
+        [JsonPropertyName("id")]
+        public int Id { get; set; }
         [JsonPropertyName("title")]
         public string? Title { get; set; }
 
