@@ -12,6 +12,8 @@ namespace KinoMate.server.Models
 
         [JsonPropertyName("poster_path")]
         public string? PosterPath { get; set; }
+        [JsonPropertyName("backdrop_path")]
+        public string? BackdropPath { get; set; }
 
         [JsonPropertyName("popularity")]
         public double? Popularity { get; set; }
@@ -20,6 +22,7 @@ namespace KinoMate.server.Models
         public string? ReleaseDate { get; set; }
         [JsonPropertyName("genre_ids")]
         public List<int>? GenreIds { get; set; }
+
     }
 
     public class PopularMoviesResponse

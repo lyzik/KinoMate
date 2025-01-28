@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-app-bar app :color="'rgba(0, 0, 0, 0.6)' " class="pl-2" flat>
+    <v-app-bar app :color="'rgba(0, 0, 0, 0.0)' " class="pl-2" flat>
       <v-toolbar-title>
         <v-img src="@/assets/LogoHeader.png" alt="Logo" contain width="200px"></v-img
       ></v-toolbar-title>
@@ -18,7 +18,7 @@
         <v-btn text to="/register">Register</v-btn>
       </template>
     </v-app-bar>
-    <v-main class="background">
+    <v-main class="custom-main">
       <router-view />
     </v-main>
   </v-app>
@@ -65,15 +65,8 @@ export default {
   },
 };
 </script>
-
-<style scoped>
-.background {
-  background-image: url('@/assets/background1.png');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+<style>
+.custom-main {
+  margin-top: -64px;
 }
 </style>

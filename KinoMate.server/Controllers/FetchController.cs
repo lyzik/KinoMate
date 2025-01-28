@@ -19,6 +19,32 @@ namespace KinoMate.server.Controllers
             _baseUrl = configuration["TheMovieDb:BaseUrl"];
         }
 
+
+        [HttpGet("movie/{id}")]
+        public async Task<IActionResult> GetMovieDetails(int id)
+        {
+            var url = $"{_baseUrl}/movie/{id}?api_key={_apiKey}&language=en-US";
+
+            try
+            {
+                var response = await _httpClient.GetAsync(url);
+                response.EnsureSuccessStatusCode();
+
+                var jsonResponse = await response.Content.ReadAsStringAsync();
+                var movieDetails = JsonSerializer.Deserialize<MovieDetailsResponse>(jsonResponse);
+
+                if (movieDetails == null)
+                {
+                    return NotFound($"No details found for movie with ID {id}.");
+                }
+
+                return Ok(movieDetails);
+            }
+            catch (HttpRequestException ex)
+            {
+                return StatusCode(500, $"Error fetching movie details from TheMovieDB: {ex.Message}");
+            }
+        }
         [HttpGet("popularMovies")]
         public async Task<IActionResult> GetPopularMovies()
         {
@@ -46,7 +72,6 @@ namespace KinoMate.server.Controllers
                 return StatusCode(500, $"Error fetching data from TheMovieDB: {ex.Message}");
             }
         }
-
         [HttpGet("topSeries")]
         public async Task<IActionResult> GetTopSeries()
         {
