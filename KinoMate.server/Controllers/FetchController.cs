@@ -1,4 +1,5 @@
-﻿using KinoMate.server.Models;
+﻿using KinoMate.server.Database;
+using KinoMate.server.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 
@@ -11,12 +12,15 @@ namespace KinoMate.server.Controllers
         private readonly HttpClient _httpClient;
         private readonly string _apiKey;
         private readonly string _baseUrl;
+        private readonly ApplicationDbContext _context;
 
-        public FetchController(IHttpClientFactory httpClientFactory, IConfiguration configuration)
+
+        public FetchController(IHttpClientFactory httpClientFactory, IConfiguration configuration, ApplicationDbContext context)
         {
             _httpClient = httpClientFactory.CreateClient();
             _apiKey = configuration["TheMovieDb:ApiKey"];
             _baseUrl = configuration["TheMovieDb:BaseUrl"];
+            _context = context;
         }
 
 
@@ -24,6 +28,7 @@ namespace KinoMate.server.Controllers
         public async Task<IActionResult> GetMovieDetails(int id)
         {
             var url = $"{_baseUrl}/movie/{id}?api_key={_apiKey}&language=en-US";
+            var videosUrl = $"{_baseUrl}/movie/{id}/videos?api_key={_apiKey}&language=en-US";
 
             try
             {
@@ -37,6 +42,23 @@ namespace KinoMate.server.Controllers
                 {
                     return NotFound($"No details found for movie with ID {id}.");
                 }
+                var videosResponse = await _httpClient.GetAsync(videosUrl);
+                videosResponse.EnsureSuccessStatusCode();
+                var videosJsonResponse = await videosResponse.Content.ReadAsStringAsync();
+                var videosData = JsonSerializer.Deserialize<VideosResponse>(videosJsonResponse);
+
+                var trailerLinks = videosData?.Results
+                    .Where(video => video.Type == "Trailer" && video.Site == "YouTube")
+                    .Select(video => $"https://www.youtube.com/watch?v={video.Key}")
+                    .ToList();
+
+                movieDetails.TrailerLinks = trailerLinks;
+                var comments = _context.Comments
+                    .Where(c => c.MovieId == id)
+                    .OrderByDescending(c => c.CreatedAt)
+                    .ToList();
+
+                movieDetails.Comments = comments;
 
                 return Ok(movieDetails);
             }

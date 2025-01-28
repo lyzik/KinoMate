@@ -1,4 +1,5 @@
 ﻿using System.Text.Json.Serialization;
+using KinoMate.server.Database;
 
 namespace KinoMate.server.Models
 {
@@ -81,6 +82,9 @@ namespace KinoMate.server.Models
 
         [JsonPropertyName("vote_count")]
         public int VoteCount { get; set; }
+
+        public List<string> TrailerLinks { get; set; }
+        public List<Comment> Comments { get; set; }
     }
 
     public class BelongsToCollection
