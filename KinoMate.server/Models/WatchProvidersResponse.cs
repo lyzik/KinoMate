@@ -1,19 +1,31 @@
 ﻿using System.Text.Json.Serialization;
 
-public class WatchProvidersResponse
+public class ProvidersResponse
 {
     [JsonPropertyName("results")]
-    public Dictionary<string, WatchProviderCountry> Results { get; set; }
+    public Dictionary<string, ProviderDetails> Results { get; set; }
 }
 
-public class WatchProviderCountry
+public class ProviderDetails
 {
+    [JsonPropertyName("link")]
+    public string Link { get; set; }
+
     [JsonPropertyName("flatrate")]
-    public List<StreamingProvider> Flatrate { get; set; }
+    public List<Provider> Flatrate { get; set; }
+
+    [JsonPropertyName("rent")]
+    public List<Provider> Rent { get; set; }
+
+    [JsonPropertyName("buy")]
+    public List<Provider> Buy { get; set; }
 }
 
-public class StreamingProvider
+public class Provider
 {
+    [JsonPropertyName("provider_id")]
+    public int ProviderId { get; set; }
+
     [JsonPropertyName("provider_name")]
     public string ProviderName { get; set; }
 

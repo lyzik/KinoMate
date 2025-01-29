@@ -29,7 +29,7 @@ namespace KinoMate.server.Controllers
         {
             var url = $"{_baseUrl}/movie/{id}?api_key={_apiKey}&language=en-US";
             var videosUrl = $"{_baseUrl}/movie/{id}/videos?api_key={_apiKey}&language=en-US";
-
+                
             try
             {
                 var response = await _httpClient.GetAsync(url);
@@ -78,7 +78,6 @@ namespace KinoMate.server.Controllers
                 }
 
                 movieDetails.Comments = commentsResponse;
-
                 return Ok(movieDetails);
             }
             catch (HttpRequestException ex)
@@ -86,6 +85,8 @@ namespace KinoMate.server.Controllers
                 return StatusCode(500, $"Error fetching movie details from TheMovieDB: {ex.Message}");
             }
         }
+
+
         [HttpGet("popularMovies")]
         public async Task<IActionResult> GetPopularMovies()
         {
@@ -113,6 +114,7 @@ namespace KinoMate.server.Controllers
                 return StatusCode(500, $"Error fetching data from TheMovieDB: {ex.Message}");
             }
         }
+
         [HttpGet("topSeries")]
         public async Task<IActionResult> GetTopSeries()
         {

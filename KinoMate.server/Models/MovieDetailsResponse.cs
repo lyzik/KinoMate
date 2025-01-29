@@ -85,6 +85,8 @@ namespace KinoMate.server.Models
 
         public List<string> TrailerLinks { get; set; }
         public List<CommentsResponse> Comments { get; set; }
+        public List<StreamingProviders> StreamingProviders { get; set; }
+   
     }
 
     public class BelongsToCollection
