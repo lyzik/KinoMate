@@ -84,7 +84,7 @@ namespace KinoMate.server.Models
         public int VoteCount { get; set; }
 
         public List<string> TrailerLinks { get; set; }
-        public List<Comment> Comments { get; set; }
+        public List<CommentsResponse> Comments { get; set; }
     }
 
     public class BelongsToCollection

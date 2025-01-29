@@ -1,8 +1,22 @@
 <template>
-  <v-container>
-    <v-row justify="center">
-      <v-col cols="12" sm="8" md="8" >
-        <v-card class="elevation-12">
+  <v-container fluid class="fill-height d-flex align-center justify-center">
+    <v-row class="w-100">
+      <v-col
+        cols="12"
+        md="6"
+        class="d-flex flex-column justify-center align-center"
+      >
+        <div class="text-center px-8">
+          <h1 class="display-2 font-weight-bold mb-4">Welcome to Kinomate</h1>
+          <p class="text-h6 font-weight-light">
+            Explore an extensive database of movies, from timeless classics to
+            the latest blockbusters. Keep track of your favorites, discover new
+            gems, and dive into detailed information about every film.
+          </p>
+        </div>
+      </v-col>
+      <v-col cols="12" md="6" class="d-flex justify-center align-center">
+        <v-card width="70%">
           <v-toolbar dark>
             <v-toolbar-title>Login</v-toolbar-title>
           </v-toolbar>
@@ -61,9 +75,34 @@ export default {
         console.error("Login error:", error);
         this.snackbar.text = "Login error: " + error.message;
         this.snackbar.show = true;
-        this.snackbar.duration = 1000;
       }
     },
   },
 };
 </script>
+
+<style scoped>
+.fill-height {
+  height: 100vh;
+}
+
+.transparent-card {
+  background-color: rgba(255, 255, 255, 0.85);
+  border-radius: 16px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.transparent-toolbar {
+  background-color: transparent;
+  padding: 0;
+}
+
+.semi-transparent-field {
+  background-color: rgba(255, 255, 255, 0.7);
+  border-radius: 8px;
+}
+
+.v-btn {
+  border-radius: 24px;
+}
+</style>

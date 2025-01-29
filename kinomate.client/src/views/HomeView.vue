@@ -10,13 +10,13 @@
     >
       <template v-slot:prev="{ props }">
         <v-btn color="transparent" flat @click="props.onClick" rounded="xl">
-          <v-icon>mdi-chevron-left</v-icon></v-btn
-        >
+          <v-icon>mdi-chevron-left</v-icon>
+        </v-btn>
       </template>
       <template v-slot:next="{ props }">
-        <v-btn color="transparent" flat @click="props.onClick" rounded="xl"
-          ><v-icon>mdi-chevron-right</v-icon></v-btn
-        >
+        <v-btn color="transparent" flat @click="props.onClick" rounded="xl">
+          <v-icon>mdi-chevron-right</v-icon>
+        </v-btn>
       </template>
       <v-carousel-item
         v-for="(movie, index) in movies"
@@ -26,11 +26,18 @@
       >
         <div>
           <div class="carousel-overlay d-flex align-center">
-            <v-row class="pl-5 ml-16">
+            <v-row class="pl-5 ml-12">
               <v-col cols="4">
                 <div>
-                  <h1 class="mb-4">{{ movie.title }}</h1>
-                  <p>{{ movie.overview }}</p>
+                  <h1 class="mb-4 text-white ml-4">{{ movie.title }}</h1>
+                  <p class="mb-3 ml-4">{{ movie.overview }}</p>
+                  <v-btn
+                    flat
+                    color="transparent"
+                    @click="$router.push(`/movies/${movie.id}`)"
+                  >
+                    View Details
+                  </v-btn>
                 </div>
               </v-col>
             </v-row>
@@ -44,20 +51,20 @@
         <v-slide-group width="100%">
           <v-slide-item v-for="(movie, index) in movies" :key="index">
             <div class="movie-image-wrapper">
-              <v-img
-                :src="`https://image.tmdb.org/t/p/original/${movie.poster_path}`"
-                :alt="movie.title"
-                class="movie-image"
-                style="border-radius: 16px; overflow: hidden"
-                width="250"
-                height="100%"
-                cover
-              ></v-img>
+              <router-link :to="`/movies/${movie.id}`">
+                <v-img
+                  :src="`https://image.tmdb.org/t/p/original/${movie.poster_path}`"
+                  :alt="movie.title"
+                  class="movie-image"
+                  style="border-radius: 16px; overflow: hidden"
+                  width="250"
+                  height="100%"
+                  cover
+                ></v-img>
+              </router-link>
               <div class="movie-overlay">
                 <h3 class="movie-title">{{ movie.title }}</h3>
-                <p class="movie-release-date">
-                  {{ movie.release_date }}
-                </p>
+                <p class="movie-release-date">{{ movie.release_date }}</p>
                 <p class="movie-genres">
                   {{ mapGenres(movie.genre_ids, movieGenres) }}
                 </p>
@@ -76,17 +83,26 @@
         <v-slide-group>
           <v-slide-item v-for="(series, index) in series" :key="index">
             <div class="movie-image-wrapper">
-              <v-img
-                :src="`https://image.tmdb.org/t/p/w500${series.poster_path}`"
-                :alt="series.name"
-                class="movie-image"
-                style="border-radius: 16px; overflow: hidden"
-                width="250"
-                height="100%"
-                cover
-              ></v-img>
+              <router-link :to="`/series/${series.id}`">
+                <v-img
+                  :src="`https://image.tmdb.org/t/p/w500${series.poster_path}`"
+                  :alt="series.name"
+                  class="movie-image"
+                  style="border-radius: 16px; overflow: hidden"
+                  width="250"
+                  height="100%"
+                  cover
+                ></v-img>
+              </router-link>
               <div class="movie-overlay">
-                <h3 class="movie-title">{{ series.name }}</h3>
+                <router-link
+                  :to="`/series/${series.id}`"
+                  class="text-decoration-none"
+                >
+                </router-link>
+                <h3 class="movie-title text-decoration-none">
+                  {{ series.name }}
+                </h3>
                 <p class="movie-release-date">
                   {{ series.first_air_date }}
                 </p>

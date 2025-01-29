@@ -23,7 +23,10 @@
               <strong>Genres:</strong> {{ genreNames }}
             </p>
             <p class="text-subtitle-1">
-              <strong>Rating:</strong> {{ movie.vote_average }}/10
+              <strong>Rating by TMDb:</strong> {{ movie.vote_average }}/10
+            </p>
+            <p class="text-subtitle-1">
+              <strong>Rating by KinoMate:</strong> {{ averageRating }} /5
             </p>
             <p class="text-subtitle-1">
               <strong>Runtime:</strong> {{ movie.runtime }} mins
@@ -36,10 +39,9 @@
           </div>
         </v-col>
       </v-row>
-
-      <v-row class="trailer-carousel-container">
-        <v-col cols="10">
-          <h2 class="text-h5 font-weight-bold text-white mb-5">
+      <v-row class="trailer-carousel-container" justify="center">
+        <v-col cols="12" md="8">
+          <h2 class="text-h5 font-weight-bold text-white mb-5 text-center">
             Watch Trailers
           </h2>
           <v-carousel
@@ -60,7 +62,7 @@
               ></iframe>
             </v-carousel-item>
           </v-carousel>
-          <p v-else class="text-white">Trailers not available</p>
+          <p v-else class="text-white text-center">Trailers not available</p>
         </v-col>
       </v-row>
       <v-row class="mt-8">
@@ -75,9 +77,18 @@
             outlined
           >
             <v-card-text>
-              <p class="text-subtitle-1">
-                <strong> {{ comment.username }}</strong>
-              </p>
+              <div class="d-flex align-center">
+                <p class="text-subtitle-1 mb-0 mr-3">
+                  <strong>{{ comment.username }}</strong>
+                </p>
+                <v-rating
+                  v-model="comment.rate"
+                  background-color="grey lighten-1"
+                  color="yellow"
+                  readonly
+                  size="x-small 20"
+                ></v-rating>
+              </div>
               <p>{{ comment.commentText }}</p>
               <p class="text-caption text-grey">
                 Posted on: {{ new Date(comment.createdAt).toLocaleString() }}
@@ -95,16 +106,19 @@
               outlined
               required
             ></v-textarea>
-            <v-text-field
-              v-model.number="newComment.rate"
-              label="Rating (1-10)"
-              type="number"
-              min="1"
-              max="10"
-              outlined
-              required
-            ></v-text-field>
-            <v-btn color="primary" type="submit">Submit</v-btn>
+            <v-row>
+              <v-rating
+                v-model.number="newComment.rate"
+                background-color="grey lighten-1"
+                color="yellow"
+                small
+                half-increments
+                length="5"
+                label="Rating (1-5)"
+                required
+              ></v-rating>
+              <v-btn flat type="submit" class="mt-2">Submit</v-btn>
+            </v-row>
           </v-form>
         </v-col>
       </v-row>
@@ -133,6 +147,16 @@ export default {
         return "No genres available";
       }
       return this.movie.genres.map((genre) => genre.name).join(", ");
+    },
+    averageRating() {
+      if (!this.movie.comments || !this.movie.comments.length) {
+        return "No ratings available";
+      }
+      const total = this.movie.comments.reduce(
+        (sum, comment) => sum + comment.rate,
+        0
+      );
+      return (total / this.movie.comments.length).toFixed(1);
     },
   },
   mounted() {
@@ -167,7 +191,7 @@ export default {
         };
 
         await httpClient.post("/api/data/addComment", payload);
-
+        payload.username = this.$store.state.user.username;
         this.movie.comments.unshift(payload);
         this.newComment.text = "";
         this.newComment.rate = null;
@@ -206,7 +230,6 @@ export default {
 
 .trailer-carousel-container {
   margin-top: 20px;
-  width: 70%;
 }
 
 .trailer-iframe {
