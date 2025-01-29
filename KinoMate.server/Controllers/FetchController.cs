@@ -58,7 +58,26 @@ namespace KinoMate.server.Controllers
                     .OrderByDescending(c => c.CreatedAt)
                     .ToList();
 
-                movieDetails.Comments = comments;
+                var commentsResponse = new List<CommentsResponse>();
+                foreach (var comment in comments)
+                {
+                    var username = _context.Users
+                        .Where(u => u.Id == comment.UserId)
+                        .Select(u => u.Username)
+                        .FirstOrDefault();
+
+                    commentsResponse.Add(new CommentsResponse
+                    {
+                        Id = comment.Id,
+                        MovieId = comment.MovieId,
+                        CommentText = comment.CommentText,
+                        Username = username,
+                        CreatedAt = comment.CreatedAt,
+                        Rate = comment.Rate
+                    });
+                }
+
+                movieDetails.Comments = commentsResponse;
 
                 return Ok(movieDetails);
             }
