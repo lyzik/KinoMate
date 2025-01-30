@@ -85,7 +85,68 @@ namespace KinoMate.server.Controllers
                 return StatusCode(500, $"Error fetching movie details from TheMovieDB: {ex.Message}");
             }
         }
+        [HttpGet("series/{id}")]
+        public async Task<IActionResult> GetSeriesDetails(int id)
+        {
+            var url = $"{_baseUrl}/tv/{id}?api_key={_apiKey}&language=en-US";
+            var videosUrl = $"{_baseUrl}/tv/{id}/videos?api_key={_apiKey}&language=en-US";
 
+            try
+            {
+                var response = await _httpClient.GetAsync(url);
+                response.EnsureSuccessStatusCode();
+
+                var jsonResponse = await response.Content.ReadAsStringAsync();
+                var seriesDetails = JsonSerializer.Deserialize<SeriesDetailsResponse>(jsonResponse);
+
+                if (seriesDetails == null)
+                {
+                    return NotFound($"No details found for series with ID {id}.");
+                }
+
+                var videosResponse = await _httpClient.GetAsync(videosUrl);
+                videosResponse.EnsureSuccessStatusCode();
+                var videosJsonResponse = await videosResponse.Content.ReadAsStringAsync();
+                var videosData = JsonSerializer.Deserialize<VideosResponse>(videosJsonResponse);
+
+                var trailerLinks = videosData?.Results
+                    .Where(video => video.Type == "Trailer" && video.Site == "YouTube")
+                    .Select(video => $"https://www.youtube.com/watch?v={video.Key}")
+                    .ToList();
+
+                seriesDetails.TrailerLinks = trailerLinks;
+                var comments = _context.Comments
+                    .Where(c => c.MovieId == id)
+                    .OrderByDescending(c => c.CreatedAt)
+                    .ToList();
+
+                var commentsResponse = new List<CommentsResponse>();
+                foreach (var comment in comments)
+                {
+                    var username = _context.Users
+                        .Where(u => u.Id == comment.UserId)
+                        .Select(u => u.Username)
+                        .FirstOrDefault();
+
+                    commentsResponse.Add(new CommentsResponse
+                    {
+                        Id = comment.Id,
+                        MovieId = comment.MovieId,
+                        CommentText = comment.CommentText,
+                        Username = username,
+                        CreatedAt = comment.CreatedAt,
+                        Rate = comment.Rate
+                    });
+                }
+
+                seriesDetails.Comments = commentsResponse;
+                return Ok(seriesDetails);
+            }
+            catch (HttpRequestException ex)
+            {
+                return StatusCode(500, $"Error fetching series details from TheMovieDB: {ex.Message}");
+            }
+        }
 
         [HttpGet("popularMovies")]
         public async Task<IActionResult> GetPopularMovies()

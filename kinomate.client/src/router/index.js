@@ -44,6 +44,12 @@ const routes = [
     component: () => import("@/views/Movies/MovieDetailView.vue"),
     beforeEnter: requireAuth,
   },
+  {
+    path: "/series/:id",
+    name: "series-id",
+    component: () => import("@/views/Serials/SeriesDetailView.vue"),
+    beforeEnter: requireAuth,
+  },
 ];
 
 const router = createRouter({
