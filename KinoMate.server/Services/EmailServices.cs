@@ -10,7 +10,7 @@ namespace KinoMate.server.Services
         {
             var email = new MimeMessage();
 
-            email.From.Add(new MailboxAddress("Wheat", "reisa@passthehay.pl"));
+            email.From.Add(new MailboxAddress("Wheat", "mailtrap@demomailtrap.com"));
             email.To.Add(new MailboxAddress("Mk", recipientEmail));
 
             email.Subject = subject;
@@ -33,7 +33,7 @@ namespace KinoMate.server.Services
             using (var smpt = new SmtpClient())
             {
                 await smpt.ConnectAsync("live.smtp.mailtrap.io", 587, false);
-                await smpt.AuthenticateAsync("api", "3b4bb58a12865632bd16b88fcb2c66a9");
+                await smpt.AuthenticateAsync("api", "2bcf4537d93ac2a1006ce299cd7dd819");
                 await smpt.SendAsync(email);
                 await smpt.DisconnectAsync(true);
             }
