@@ -41,7 +41,7 @@
   <v-row class="watch-providers-section mt-8">
     <v-col cols="12" md="8">
       <h2 class="text-h5 font-weight-bold text-white mb-4">Where to Watch</h2>
-      <div v-if="watchProviders.length">
+      <div v-if="watchProviders && watchProviders.length">
         <v-chip
           v-for="(provider, index) in watchProviders"
           :key="index"
