@@ -257,5 +257,88 @@ namespace KinoMate.server.Controllers
                 return StatusCode(500, $"Error fetching series genres from TheMovieDB: {ex.Message}");
             }
         }
+        [HttpGet("searchMovies")]
+        public async Task<IActionResult> SearchMovies([FromQuery] string query)
+        {
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                return BadRequest("Query parameter is required.");
+            }
+
+            var url = $"{_baseUrl}/search/movie?api_key={_apiKey}&language=en-US&query={Uri.EscapeDataString(query)}";
+
+            try
+            {
+                var response = await _httpClient.GetAsync(url);
+                response.EnsureSuccessStatusCode();
+
+                var jsonResponse = await response.Content.ReadAsStringAsync();
+                var searchResults = JsonSerializer.Deserialize<SearchMoviesResponse>(jsonResponse);
+
+                if (searchResults == null || searchResults.Results == null || !searchResults.Results.Any())
+                {
+                    return NotFound("No movies found for the given query.");
+                }
+
+                var movies = searchResults.Results.Select(movie => new
+                {
+                    movie.Id,
+                    movie.Name
+                });
+
+                return Ok(movies);
+            }
+            catch (HttpRequestException ex)
+            {
+                return StatusCode(500, $"Error fetching search results from TheMovieDB: {ex.Message}");
+            }
+        }
+        [HttpGet("search/{query}")]
+        public async Task<IActionResult> SearchMoviesAndSeries(string query)
+        {
+            var movieUrl = $"{_baseUrl}/search/movie?api_key={_apiKey}&language=en-US&query={query}&page=1";
+            var seriesUrl = $"{_baseUrl}/search/tv?api_key={_apiKey}&language=en-US&query={query}&page=1";
+
+            try
+            {
+                var movieResponse = await _httpClient.GetAsync(movieUrl);
+                movieResponse.EnsureSuccessStatusCode();
+                var movieJsonResponse = await movieResponse.Content.ReadAsStringAsync();
+                var movieData = JsonSerializer.Deserialize<SearchMoviesResponse>(movieJsonResponse);
+
+                var seriesResponse = await _httpClient.GetAsync(seriesUrl);
+                seriesResponse.EnsureSuccessStatusCode();
+                var seriesJsonResponse = await seriesResponse.Content.ReadAsStringAsync();
+                var seriesData = JsonSerializer.Deserialize<SearchMoviesResponse>(seriesJsonResponse);
+
+                var results = new List<SearchResult>();
+
+                if (movieData?.Results != null)
+                {
+                    results.AddRange(movieData.Results.Select(m => new SearchResult
+                    {
+                        Id = m.Id,
+                        Name = m.Name,
+                        Type = "Movie"
+                    }));
+                }
+
+                if (seriesData?.Results != null)
+                {
+                    results.AddRange(seriesData.Results.Select(s => new SearchResult
+                    {
+                        Id = s.Id,
+                        Name = s.Name,
+                        Type = "Series"
+                    }));
+                }
+
+                return Ok(results);
+            }
+            catch (HttpRequestException ex)
+            {
+                return StatusCode(500, $"Error fetching search results from TheMovieDB: {ex.Message}");
+            }
+        }
     }
 }
