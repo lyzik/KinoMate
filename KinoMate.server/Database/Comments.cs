@@ -8,5 +8,13 @@ namespace KinoMate.server.Database
         public int UserId { get; set; }
         public DateTime CreatedAt { get; set; }
         public decimal Rate { get; set; }
+        public CommentMediaType? MediaType { get; set; }
     }
+
+    public enum CommentMediaType
+    {
+        Movie,
+        Series
+    }
+
 }

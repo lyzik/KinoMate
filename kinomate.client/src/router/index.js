@@ -47,7 +47,7 @@ const routes = [
   {
     path: "/series/:id",
     name: "series-id",
-    component: () => import("@/views/Serials/SeriesDetailView.vue"),
+    component: () => import("@/views/Series/SeriesDetailView.vue"),
     beforeEnter: requireAuth,
   },
 ];

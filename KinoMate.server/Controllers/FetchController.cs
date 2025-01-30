@@ -54,7 +54,7 @@ namespace KinoMate.server.Controllers
 
                 movieDetails.TrailerLinks = trailerLinks;
                 var comments = _context.Comments
-                    .Where(c => c.MovieId == id)
+                    .Where(c => c.MovieId == id && c.MediaType == CommentMediaType.Movie)
                     .OrderByDescending(c => c.CreatedAt)
                     .ToList();
 
@@ -116,7 +116,7 @@ namespace KinoMate.server.Controllers
 
                 seriesDetails.TrailerLinks = trailerLinks;
                 var comments = _context.Comments
-                    .Where(c => c.MovieId == id)
+                    .Where(c => c.MovieId == id && c.MediaType == CommentMediaType.Series)
                     .OrderByDescending(c => c.CreatedAt)
                     .ToList();
 
