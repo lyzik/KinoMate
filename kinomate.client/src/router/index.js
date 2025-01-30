@@ -38,6 +38,12 @@ const routes = [
     component: UserPanelView,
     beforeEnter: requireAuth,
   },
+  {
+    path: "/movies/:id",
+    name: "movies-id",
+    component: () => import("@/views/Movies/MovieDetailView.vue"),
+    beforeEnter: requireAuth,
+  },
 ];
 
 const router = createRouter({

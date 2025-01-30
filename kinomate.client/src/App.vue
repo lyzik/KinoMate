@@ -1,9 +1,18 @@
 <template>
   <v-app>
-    <v-app-bar app color="white" class="pl-2">
-      <v-toolbar-title>KinoMate</v-toolbar-title>
+    <v-app-bar app :color="'rgba(0, 0, 0, 0.0)'" class="pl-2" flat>
+      <v-toolbar-title class="d-flex align-center">
+        <router-link to="/" class="logo-link">
+          <v-img
+            src="@/assets/LogoHeader.png"
+            alt="Logo"
+            contain
+            width="200px"
+            class="logo-img"
+          ></v-img>
+        </router-link>
+      </v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-btn text to="/">Home</v-btn>
       <template v-if="isLoggedIn">
         <v-btn text to="/user">
           <v-icon left>mdi-account</v-icon>
@@ -16,7 +25,7 @@
         <v-btn text to="/register">Register</v-btn>
       </template>
     </v-app-bar>
-    <v-main>
+    <v-main class="custom-main">
       <router-view />
     </v-main>
   </v-app>
@@ -28,6 +37,9 @@ import Cookies from "js-cookie";
 
 export default {
   name: "App",
+  mounted() {
+    document.title = "Kinomate";
+  },
   computed: {
     ...mapState(["token", "user"]),
     isLoggedIn() {
@@ -58,8 +70,13 @@ export default {
     ...mapActions(["fetchUserInfo", "logout"]),
     logout() {
       this.$store.dispatch("logout");
-      this.$router.push("/");
+      this.$router.push("/login");
     },
   },
 };
 </script>
+<style>
+.custom-main {
+  margin-top: -64px;
+}
+</style>
