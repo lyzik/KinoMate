@@ -85,8 +85,9 @@ namespace KinoMate.server.Models
 
         public List<string> TrailerLinks { get; set; }
         public List<CommentsResponse> Comments { get; set; }
-        public List<StreamingProviders> StreamingProviders { get; set; }
-   
+        public string StreamingLink { get; set; }
+        public List<StreamingPlatform> StreamingPlatforms { get; set; }
+
     }
 
     public class BelongsToCollection
@@ -138,5 +139,13 @@ namespace KinoMate.server.Models
 
         [JsonPropertyName("name")]
         public string Name { get; set; }
+    }
+
+    public class StreamingPlatform
+    {
+        [JsonPropertyName("name")]
+        public string Name { get; set; }
+        [JsonPropertyName("logo_url")]
+        public string LogoUrl { get; set; }
     }
 }

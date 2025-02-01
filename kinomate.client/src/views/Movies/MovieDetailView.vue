@@ -37,38 +37,42 @@
             <h2 class="text-h5 font-weight-bold">Overview</h2>
             <p>{{ movie.overview }}</p>
           </div>
-           <!-- Sekcja Platform Streamingowych -->
-  <v-row class="watch-providers-section mt-8">
-    <v-col cols="12" md="8">
-      <h2 class="text-h5 font-weight-bold text-white mb-4">Where to Watch</h2>
-      <div v-if="watchProviders && watchProviders.length">
-        <v-chip
-          v-for="(provider, index) in watchProviders"
-          :key="index"
-          class="mr-2 mb-2"
-          color="primary"
-          outlined
-        >
-          <a
-            :href="provider.link"
-            target="_blank"
-            class="text-white text-decoration-none"
-          >
-            <v-img
-              :src="provider.logo"
-              alt="Provider logo"
-              max-height="24"
-              max-width="24"
-              class="mr-2"
-            />
-            {{ provider.name }}
-          </a>
-        </v-chip>
-      </div>
-      <p v-else class="text-white">No streaming options available.</p>
-    </v-col>
-  </v-row>
+          <v-row class="watch-providers-section mt-2">
+            <v-col>
+              <h2 class="text-h5 font-weight-bold text-white mb-2">
+                Where to Watch
+              </h2>
+              <div
+                v-if="
+                  movie.streamingLink &&
+                  movie.streamingPlatforms &&
+                  movie.streamingPlatforms.length
+                "
+              >
+                <div class="d-flex align-center">
+                  <span
+                    v-for="(platform, index) in movie.streamingPlatforms"
+                    :key="index"
+                    class="mr-2"
+                  >
+                    <v-img
+                      :src="platform.logo_url"
+                      :alt="platform.name"
+                      width="50px"
+                    ></v-img
+                  ></span>
 
+                  <a
+                    :href="movie.streamingLink"
+                    target="_blank"
+                    class="text-white"
+                    >Links on TMDb</a
+                  >
+                </div>
+              </div>
+              <p v-else class="text-white">No streaming options available.</p>
+            </v-col>
+          </v-row>
         </v-col>
       </v-row>
       <v-row class="trailer-carousel-container" justify="center">
@@ -236,21 +240,6 @@ export default {
       const match = url.match(/(?:youtube\.com\/.*v=|youtu\.be\/)([^&]+)/);
       return match ? match[1] : "";
     },
-    async fetchWatchProviders(movieId) {
-    try {
-      const response = await httpClient.get(`/api/fetch/watchProviders/${movieId}`);
-      if (response.data && response.data.results && response.data.results.PL) {
-        const providers = response.data.results.PL;
-        this.watchProviders = (providers.flatrate || []).map(provider => ({
-          name: provider.provider_name,
-          logo: `https://image.tmdb.org/t/p/w92${provider.logo_path}`,
-          link: `https://www.justwatch.com/pl/film/${this.movie.title.replace(/\s+/g, '-').toLowerCase()}`,
-        }));
-      }
-    } catch (error) {
-      console.error("Error fetching watch providers:", error);
-    }
-  },
   },
 };
 </script>

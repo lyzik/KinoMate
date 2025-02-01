@@ -38,34 +38,38 @@
             <p>{{ series.overview }}</p>
           </div>
 
-          <v-row class="watch-providers-section mt-8">
-            <v-col cols="12" md="8">
-              <h2 class="text-h5 font-weight-bold text-white mb-4">
+          <v-row class="watch-providers-section mt-2">
+            <v-col>
+              <h2 class="text-h5 font-weight-bold text-white mb-2">
                 Where to Watch
               </h2>
-              <div v-if="watchProviders.length">
-                <v-chip
-                  v-for="(provider, index) in watchProviders"
-                  :key="index"
-                  class="mr-2 mb-2"
-                  color="primary"
-                  outlined
-                >
-                  <a
-                    :href="provider.link"
-                    target="_blank"
-                    class="text-white text-decoration-none"
+              <div
+                v-if="
+                  series.streamingLink &&
+                  series.streamingPlatforms &&
+                  series.streamingPlatforms.length
+                "
+              >
+                <div class="d-flex align-center">
+                  <span
+                    v-for="(platform, index) in series.streamingPlatforms"
+                    :key="index"
+                    class="mr-2"
                   >
                     <v-img
-                      :src="provider.logo"
-                      alt="Provider logo"
-                      max-height="24"
-                      max-width="24"
-                      class="mr-2"
-                    />
-                    {{ provider.name }}
-                  </a>
-                </v-chip>
+                      :src="platform.logo_url"
+                      :alt="platform.name"
+                      width="50px"
+                    ></v-img
+                  ></span>
+
+                  <a
+                    :href="series.streamingLink"
+                    target="_blank"
+                    class="text-white"
+                    >Links on TMDb</a
+                  >
+                </div>
               </div>
               <p v-else class="text-white">No streaming options available.</p>
             </v-col>

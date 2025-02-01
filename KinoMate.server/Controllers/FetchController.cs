@@ -30,12 +30,12 @@ namespace KinoMate.server.Controllers
         {
             var url = $"{_baseUrl}/movie/{id}?api_key={_apiKey}&language=en-US";
             var videosUrl = $"{_baseUrl}/movie/{id}/videos?api_key={_apiKey}&language=en-US";
-                
+            var providersUrl = $"{_baseUrl}/movie/{id}/watch/providers?api_key={_apiKey}";
+
             try
             {
                 var response = await _httpClient.GetAsync(url);
                 response.EnsureSuccessStatusCode();
-
                 var jsonResponse = await response.Content.ReadAsStringAsync();
                 var movieDetails = JsonSerializer.Deserialize<MovieDetailsResponse>(jsonResponse);
 
@@ -43,42 +43,54 @@ namespace KinoMate.server.Controllers
                 {
                     return NotFound($"No details found for movie with ID {id}.");
                 }
+
+                // Pobieranie trailerów
                 var videosResponse = await _httpClient.GetAsync(videosUrl);
                 videosResponse.EnsureSuccessStatusCode();
                 var videosJsonResponse = await videosResponse.Content.ReadAsStringAsync();
                 var videosData = JsonSerializer.Deserialize<VideosResponse>(videosJsonResponse);
 
-                var trailerLinks = videosData?.Results
+                movieDetails.TrailerLinks = videosData?.Results
                     .Where(video => video.Type == "Trailer" && video.Site == "YouTube")
                     .Select(video => $"https://www.youtube.com/watch?v={video.Key}")
                     .ToList();
 
-                movieDetails.TrailerLinks = trailerLinks;
+                // Pobieranie komentarzy
                 var comments = _context.Comments
                     .Where(c => c.MovieId == id && c.MediaType == CommentMediaType.Movie)
                     .OrderByDescending(c => c.CreatedAt)
                     .ToList();
 
-                var commentsResponse = new List<CommentsResponse>();
-                foreach (var comment in comments)
+                var commentsResponse = comments.Select(comment => new CommentsResponse
                 {
-                    var username = _context.Users
-                        .Where(u => u.Id == comment.UserId)
-                        .Select(u => u.Username)
-                        .FirstOrDefault();
-
-                    commentsResponse.Add(new CommentsResponse
-                    {
-                        Id = comment.Id,
-                        MovieId = comment.MovieId,
-                        CommentText = comment.CommentText,
-                        Username = username,
-                        CreatedAt = comment.CreatedAt,
-                        Rate = comment.Rate
-                    });
-                }
+                    Id = comment.Id,
+                    MovieId = comment.MovieId,
+                    CommentText = comment.CommentText,
+                    Username = _context.Users.Where(u => u.Id == comment.UserId)
+                                             .Select(u => u.Username)
+                                             .FirstOrDefault(),
+                    CreatedAt = comment.CreatedAt,
+                    Rate = comment.Rate
+                }).ToList();
 
                 movieDetails.Comments = commentsResponse;
+
+                var providersResponse = await _httpClient.GetAsync(providersUrl);
+                providersResponse.EnsureSuccessStatusCode();
+                var providersJsonResponse = await providersResponse.Content.ReadAsStringAsync();
+                var providersData = JsonSerializer.Deserialize<WatchProvidersResponse>(providersJsonResponse);
+
+                if (providersData?.Results != null && providersData.Results.ContainsKey("US"))
+                {
+                    var providers = providersData.Results["US"];
+                    movieDetails.StreamingLink = providers.Link;
+                    movieDetails.StreamingPlatforms = providers.Flatrate?.Select(provider => new StreamingPlatform
+                    {
+                        Name = provider.ProviderName,
+                        LogoUrl = $"https://image.tmdb.org/t/p/w500{provider.LogoPath}"
+                    }).ToList();
+                }
+
                 return Ok(movieDetails);
             }
             catch (HttpRequestException ex)
@@ -91,6 +103,7 @@ namespace KinoMate.server.Controllers
         {
             var url = $"{_baseUrl}/tv/{id}?api_key={_apiKey}&language=en-US";
             var videosUrl = $"{_baseUrl}/tv/{id}/videos?api_key={_apiKey}&language=en-US";
+            var providersUrl = $"{_baseUrl}/tv/{id}/watch/providers?api_key={_apiKey}";
 
             try
             {
@@ -141,6 +154,25 @@ namespace KinoMate.server.Controllers
                 }
 
                 seriesDetails.Comments = commentsResponse;
+
+
+                var providersResponse = await _httpClient.GetAsync(providersUrl);
+                providersResponse.EnsureSuccessStatusCode();
+                var providersJsonResponse = await providersResponse.Content.ReadAsStringAsync();
+                var providersData = JsonSerializer.Deserialize<WatchProvidersResponse>(providersJsonResponse);
+
+                if (providersData?.Results != null && providersData.Results.ContainsKey("US"))
+                {
+                    var providers = providersData.Results["US"];
+                    seriesDetails.StreamingLink = providers.Link;
+                    seriesDetails.StreamingPlatforms = providers.Flatrate?.Select(provider => new StreamingPlatform
+                    {
+                        Name = provider.ProviderName,
+                        LogoUrl = $"https://image.tmdb.org/t/p/w500{provider.LogoPath}"
+                    }).ToList();
+                }
+
+
                 return Ok(seriesDetails);
             }
             catch (HttpRequestException ex)
