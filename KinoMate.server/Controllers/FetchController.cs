@@ -2,6 +2,7 @@
 using KinoMate.server.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
+using static KinoMate.server.Models.SearchSeries;
 
 namespace KinoMate.server.Controllers
 {
@@ -257,42 +258,6 @@ namespace KinoMate.server.Controllers
                 return StatusCode(500, $"Error fetching series genres from TheMovieDB: {ex.Message}");
             }
         }
-        [HttpGet("searchMovies")]
-        public async Task<IActionResult> SearchMovies([FromQuery] string query)
-        {
-            if (string.IsNullOrWhiteSpace(query))
-            {
-                return BadRequest("Query parameter is required.");
-            }
-
-            var url = $"{_baseUrl}/search/movie?api_key={_apiKey}&language=en-US&query={Uri.EscapeDataString(query)}";
-
-            try
-            {
-                var response = await _httpClient.GetAsync(url);
-                response.EnsureSuccessStatusCode();
-
-                var jsonResponse = await response.Content.ReadAsStringAsync();
-                var searchResults = JsonSerializer.Deserialize<SearchMoviesResponse>(jsonResponse);
-
-                if (searchResults == null || searchResults.Results == null || !searchResults.Results.Any())
-                {
-                    return NotFound("No movies found for the given query.");
-                }
-
-                var movies = searchResults.Results.Select(movie => new
-                {
-                    movie.Id,
-                    movie.Name
-                });
-
-                return Ok(movies);
-            }
-            catch (HttpRequestException ex)
-            {
-                return StatusCode(500, $"Error fetching search results from TheMovieDB: {ex.Message}");
-            }
-        }
         [HttpGet("search/{query}")]
         public async Task<IActionResult> SearchMoviesAndSeries(string query)
         {
@@ -309,7 +274,7 @@ namespace KinoMate.server.Controllers
                 var seriesResponse = await _httpClient.GetAsync(seriesUrl);
                 seriesResponse.EnsureSuccessStatusCode();
                 var seriesJsonResponse = await seriesResponse.Content.ReadAsStringAsync();
-                var seriesData = JsonSerializer.Deserialize<SearchMoviesResponse>(seriesJsonResponse);
+                var seriesData = JsonSerializer.Deserialize<SearchSeriesResponseMapping>(seriesJsonResponse);
 
                 var results = new List<SearchResult>();
 
@@ -318,7 +283,7 @@ namespace KinoMate.server.Controllers
                     results.AddRange(movieData.Results.Select(m => new SearchResult
                     {
                         Id = m.Id,
-                        Name = m.Name,
+                        Title = m.Title,
                         Type = "Movie"
                     }));
                 }
@@ -328,7 +293,7 @@ namespace KinoMate.server.Controllers
                     results.AddRange(seriesData.Results.Select(s => new SearchResult
                     {
                         Id = s.Id,
-                        Name = s.Name,
+                        Title = s.Name,
                         Type = "Series"
                     }));
                 }

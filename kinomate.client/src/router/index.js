@@ -4,6 +4,7 @@ import LoginView from "@/views/Auth/LoginView.vue";
 import UserPanelView from "@/views/Auth/UserPanelView.vue";
 import RegisterView from "@/views/Auth/RegisterView.vue";
 import Cookies from "js-cookie";
+import SearchView from "@/views/SearchView.vue";
 
 const requireAuth = (to, from, next) => {
   const isAuthenticated =
@@ -50,6 +51,13 @@ const routes = [
     component: () => import("@/views/Series/SeriesDetailView.vue"),
     beforeEnter: requireAuth,
   },
+  {
+    path: "/search",
+    name: "search",
+    component: SearchView,
+    beforeEnter: requireAuth,
+  },
+
 ];
 
 const router = createRouter({

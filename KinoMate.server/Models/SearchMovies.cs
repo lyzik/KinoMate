@@ -11,8 +11,8 @@ namespace KinoMate.server.Models
     {
         [JsonPropertyName("id")]
         public int Id { get; set; }
-        [JsonPropertyName("name")]
-        public string Name { get; set; }
+        [JsonPropertyName("title")]
+        public string Title { get; set; }
         [JsonPropertyName("type")]
         public string Type { get; set; }
     }
