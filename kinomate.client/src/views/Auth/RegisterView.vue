@@ -129,6 +129,7 @@ export default {
           } else {
             const errorData = await response.json();
             this.snackbar.text = "Register error: " + errorData.message;
+            localStorage.setItem("introSeen", "false");
             this.snackbar.show = true;
           }
         } catch (error) {

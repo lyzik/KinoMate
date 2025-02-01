@@ -71,6 +71,9 @@ export default {
   methods: {
     ...mapActions(["fetchUserInfo", "logout"]),
     logout() {
+      Cookies.remove("user");
+      Cookies.remove("token");
+      localStorage.setItem("introSeen", "false");
       this.$store.dispatch("logout");
       this.$router.push("/login");
     },
