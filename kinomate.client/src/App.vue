@@ -14,6 +14,7 @@
       </v-toolbar-title>
       <v-spacer></v-spacer>
       <template v-if="isLoggedIn">
+        <v-btn text to="/forum">Forum</v-btn>
         <v-btn text to="/search">Search</v-btn>
         <v-btn text to="/user">
           <v-icon left>mdi-account</v-icon>

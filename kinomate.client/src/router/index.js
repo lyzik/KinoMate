@@ -5,6 +5,7 @@ import UserPanelView from "@/views/Auth/UserPanelView.vue";
 import RegisterView from "@/views/Auth/RegisterView.vue";
 import Cookies from "js-cookie";
 import SearchView from "@/views/SearchView.vue";
+import MainPage from "@/views/Forum/MainPage.vue";
 
 const requireAuth = (to, from, next) => {
   const isAuthenticated =
@@ -55,6 +56,13 @@ const routes = [
     path: "/search",
     name: "search",
     component: SearchView,
+    beforeEnter: requireAuth,
+  },
+
+  {
+    path: "/Forum",
+    name: "Forum",
+    component: MainPage,
     beforeEnter: requireAuth,
   },
 
