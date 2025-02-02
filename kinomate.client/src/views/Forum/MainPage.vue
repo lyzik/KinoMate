@@ -39,10 +39,10 @@
             Created by: {{ post.username }} | {{ formatDate(post.createdAt) }}
           </v-list-item-subtitle>
         </v-list-item-content>
-        <v-list-item-action class="mb-4">
+        <!-- <v-list-item-action class="mb-4">
           <v-icon class="mr-3">mdi-thumb-up</v-icon>
           <span>{{ post.likes }}</span>
-        </v-list-item-action>
+        </v-list-item-action> -->
         <v-divider></v-divider>
       </v-list-item>
     </v-list>

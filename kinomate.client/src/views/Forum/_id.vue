@@ -7,7 +7,7 @@
         <p>
           <strong>Utworzono:</strong> {{ formatDate(selectedPost.createdAt) }}
         </p>
-        <p><strong>Polubienia:</strong> {{ selectedPost.likes }}</p>
+        <!-- <p><strong>Polubienia:</strong> {{ selectedPost.likes }}</p> -->
         <h3>Komentarze:</h3>
         <v-list>
           <v-list-item
