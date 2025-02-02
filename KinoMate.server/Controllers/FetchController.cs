@@ -1,6 +1,9 @@
 ﻿using KinoMate.server.Database;
 using KinoMate.server.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using System.Text.Json;
 using static KinoMate.server.Models.SearchSeries;
 
@@ -44,7 +47,6 @@ namespace KinoMate.server.Controllers
                     return NotFound($"No details found for movie with ID {id}.");
                 }
 
-                // Pobieranie trailerów
                 var videosResponse = await _httpClient.GetAsync(videosUrl);
                 videosResponse.EnsureSuccessStatusCode();
                 var videosJsonResponse = await videosResponse.Content.ReadAsStringAsync();
@@ -55,7 +57,16 @@ namespace KinoMate.server.Controllers
                     .Select(video => $"https://www.youtube.com/watch?v={video.Key}")
                     .ToList();
 
-                // Pobieranie komentarzy
+                var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+
+                if (user != null)
+                {
+                    var favorites = await _context.Favorites.FirstOrDefaultAsync(f => f.UserId == user.Id);
+                    movieDetails.IsFavorite = favorites?.MoviesId.Contains(id) ?? false;
+                    movieDetails.HasNotification = favorites?.MoviesNotificationId.Contains(id) ?? false;
+                }
+
                 var comments = _context.Comments
                     .Where(c => c.MovieId == id && c.MediaType == CommentMediaType.Movie)
                     .OrderByDescending(c => c.CreatedAt)
@@ -180,7 +191,6 @@ namespace KinoMate.server.Controllers
                 return StatusCode(500, $"Error fetching series details from TheMovieDB: {ex.Message}");
             }
         }
-
         [HttpGet("popularMovies")]
         public async Task<IActionResult> GetPopularMovies()
         {
@@ -208,7 +218,6 @@ namespace KinoMate.server.Controllers
                 return StatusCode(500, $"Error fetching data from TheMovieDB: {ex.Message}");
             }
         }
-
         [HttpGet("topSeries")]
         public async Task<IActionResult> GetTopSeries()
         {
@@ -337,5 +346,90 @@ namespace KinoMate.server.Controllers
                 return StatusCode(500, $"Error fetching search results from TheMovieDB: {ex.Message}");
             }
         }
+        [HttpGet("upcomingMovies/{year}/{month}")]
+        public async Task<IActionResult> GetUpcomingMoviesByMonth(int year, int month)
+        {
+            var firstDay = new DateTime(year, month, 1).ToString("yyyy-MM-dd");
+            var lastDay = new DateTime(year, month, DateTime.DaysInMonth(year, month)).ToString("yyyy-MM-dd");
+
+            var url = $"{_baseUrl}/discover/movie?api_key={_apiKey}&language=en-US&region=US" +
+                      $"&primary_release_date.gte={firstDay}&primary_release_date.lte={lastDay}" +
+                      $"&sort_by=popularity_desc";
+
+            try
+            {
+                var response = await _httpClient.GetAsync(url);
+                response.EnsureSuccessStatusCode();
+
+                var jsonResponse = await response.Content.ReadAsStringAsync();
+                var moviesData = JsonSerializer.Deserialize<UpcomingMoviesResponse>(jsonResponse);
+
+                if (moviesData == null || moviesData.Results == null)
+                {
+                    return NotFound("No upcoming movies found for the specified month.");
+                }
+
+                return Ok(moviesData.Results);
+            }
+            catch (HttpRequestException ex)
+            {
+                return StatusCode(500, $"Error fetching upcoming movie releases: {ex.Message}");
+            }
+        }
+        [HttpGet("getFavoriteMovies")]
+        [Authorize]
+        public async Task<IActionResult> GetFavoriteMovies()
+        {
+            var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(username))
+            {
+                return Unauthorized("User ID is missing.");
+            }
+
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
+
+            var favorites = await _context.Favorites.FirstOrDefaultAsync(f => f.UserId == user.Id);
+            if (favorites == null || favorites.MoviesId == null || !favorites.MoviesId.Any())
+            {
+                return Ok(new List<object>());
+            }
+
+            var movieDetails = new List<object>();
+
+            foreach (var movieId in favorites.MoviesId)
+            {
+                var movieUrl = $"{_baseUrl}/movie/{movieId}?api_key={_apiKey}&language=en-US";
+
+                try
+                {
+                    var response = await _httpClient.GetAsync(movieUrl);
+                    response.EnsureSuccessStatusCode();
+                    var jsonResponse = await response.Content.ReadAsStringAsync();
+                    var movieData = JsonSerializer.Deserialize<MovieDetailsResponse>(jsonResponse);
+
+                    if (movieData != null)
+                    {
+                        movieDetails.Add(new
+                        {
+                            Id = movieData.Id,
+                            Title = movieData.Title,
+                            Poster = movieData.PosterPath
+                        });
+                    }
+                }
+                catch (HttpRequestException)
+                {
+                    continue;
+                }
+            }
+
+            return Ok(movieDetails);
+        }
+
+
     }
 }
