@@ -65,7 +65,12 @@ const routes = [
     component: MainPage,
     beforeEnter: requireAuth,
   },
-
+  {
+    path: "/forum/:id",
+    name: "post-details",
+    component: () => import("@/views/Forum/_id.vue"),
+    beforeEnter: requireAuth,
+  },
 ];
 
 const router = createRouter({
