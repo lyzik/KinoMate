@@ -14,7 +14,27 @@
         </v-col>
         <v-col cols="12" md="7">
           <h1 class="text-h3 font-weight-bold text-white">{{ series.name }}</h1>
-
+          <div class="d-flex align-center mb-3">
+            <v-btn
+              class="mr-3 my-5"
+              icon
+              @click="toggleFavorite"
+              style="background-color: transparent"
+            >
+              <v-icon :color="series.isFavorite ? 'red' : 'white'">
+                {{ series.isFavorite ? "mdi-heart" : "mdi-heart-outline" }}
+              </v-icon>
+            </v-btn>
+            <v-btn
+              icon
+              @click="toggleNotification"
+              style="background-color: transparent"
+            >
+              <v-icon :color="series.hasNotification ? 'yellow' : 'white'">
+                {{ series.hasNotification ? "mdi-bell" : "mdi-bell-outline" }}
+              </v-icon>
+            </v-btn>
+          </div>
           <div class="series-details text-white">
             <p class="text-subtitle-1">
               <strong>First Air Date:</strong> {{ series.first_air_date }}
@@ -255,6 +275,26 @@ export default {
         this.newComment.rate = null;
       } catch (error) {
         console.error("Error submitting comment:", error);
+      }
+    },
+    async toggleFavorite() {
+      try {
+        await httpClient.post(
+          `/api/Data/toggleFavoriteSeries/${this.series.id}`
+        );
+        this.series.isFavorite = !this.series.isFavorite;
+      } catch (error) {
+        console.error("Error toggling favorite:", error);
+      }
+    },
+    async toggleNotification() {
+      try {
+        await httpClient.post(
+          `/api/Data/toggleSeriesNotification/${this.series.id}`
+        );
+        this.series.hasNotification = !this.series.hasNotification;
+      } catch (error) {
+        console.error("Error toggling notification:", error);
       }
     },
   },

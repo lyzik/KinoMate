@@ -27,6 +27,34 @@
             <h3 class="movie-title">{{ movie.title }}</h3>
           </div>
         </div>
+      </v-col> </v-row
+    ><v-row>
+      <v-col cols="12">
+        <h2 class="text-h4 font-weight-bold mb-6 ml-4">Favorite Series</h2>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col
+        v-for="series in favoriteSeries"
+        :key="series.id"
+        cols="12"
+        sm="6"
+        md="4"
+        lg="3"
+      >
+        <div class="movie-card">
+          <router-link :to="`/series/${series.id}`">
+            <v-img
+              :src="`https://image.tmdb.org/t/p/w500${series.poster}`"
+              :alt="series.title"
+              class="movie-poster"
+              cover
+            ></v-img>
+          </router-link>
+          <div class="movie-info">
+            <h3 class="movie-title">{{ series.title }}</h3>
+          </div>
+        </div>
       </v-col>
     </v-row>
   </v-container>
@@ -40,10 +68,12 @@ export default {
   data() {
     return {
       favoriteMovies: [],
+      favoriteSeries: [],
     };
   },
   mounted() {
     this.fetchFavoriteMovies();
+    this.fetchFavoriteSeries();
   },
   methods: {
     async fetchFavoriteMovies() {
@@ -52,6 +82,14 @@ export default {
         this.favoriteMovies = response.data;
       } catch (error) {
         console.error("Error fetching favorite movies:", error);
+      }
+    },
+    async fetchFavoriteSeries() {
+      try {
+        const response = await httpClient.get("/api/fetch/getFavoriteSeries");
+        this.favoriteSeries = response.data;
+      } catch (error) {
+        console.error("Error fetching favorite series:", error);
       }
     },
   },

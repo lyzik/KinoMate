@@ -7,7 +7,7 @@ import Cookies from "js-cookie";
 import SearchView from "@/views/SearchView.vue";
 import MainPage from "@/views/Forum/MainPage.vue";
 import MovieCalendarView from "@/views/Movies/MovieCalendarView.vue";
-import FavoritesView from "@/views/Movies/FavoritesView.vue";
+import FavoritesView from "@/views/FavoritesView.vue";
 
 const requireAuth = (to, from, next) => {
   const isAuthenticated =
@@ -73,7 +73,7 @@ const routes = [
     beforeEnter: requireAuth,
   },
   {
-    path: "/movies/favorites",
+    path: "/favorites",
     name: "Favorites",
     component: FavoritesView,
     beforeEnter: requireAuth,

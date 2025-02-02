@@ -1,4 +1,5 @@
 ﻿using KinoMate.server.Database;
+using KinoMate.server.Database.Auth;
 using KinoMate.server.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -143,22 +144,30 @@ namespace KinoMate.server.Controllers
                 var comments = _context.Comments
                     .Where(c => c.MovieId == id && c.MediaType == CommentMediaType.Series)
                     .OrderByDescending(c => c.CreatedAt)
-                    .ToList();
+                .ToList();
+
+
+                var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+
+                if (user != null)
+                {
+                    var favorites = await _context.Favorites.FirstOrDefaultAsync(f => f.UserId == user.Id);
+                    seriesDetails.IsFavorite = favorites?.SeriesId.Contains(id) ?? false;
+                    seriesDetails.HasNotification = favorites?.SeriesNotificationId.Contains(id) ?? false;
+                }
 
                 var commentsResponse = new List<CommentsResponse>();
                 foreach (var comment in comments)
                 {
-                    var username = _context.Users
-                        .Where(u => u.Id == comment.UserId)
-                        .Select(u => u.Username)
-                        .FirstOrDefault();
-
                     commentsResponse.Add(new CommentsResponse
                     {
                         Id = comment.Id,
                         MovieId = comment.MovieId,
                         CommentText = comment.CommentText,
-                        Username = username,
+                        Username = _context.Users.Where(u => u.Id == comment.UserId)
+                                             .Select(u => u.Username)
+                                             .FirstOrDefault(),
                         CreatedAt = comment.CreatedAt,
                         Rate = comment.Rate
                     });
@@ -430,6 +439,58 @@ namespace KinoMate.server.Controllers
             return Ok(movieDetails);
         }
 
+        [HttpGet("getFavoriteSeries")]
+        [Authorize]
+        public async Task<IActionResult> GetFavoriteSeries()
+        {
+            var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(username))
+            {
+                return Unauthorized("User ID is missing.");
+            }
 
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
+
+            var favorites = await _context.Favorites.FirstOrDefaultAsync(f => f.UserId == user.Id);
+            if (favorites == null || favorites.SeriesId == null || !favorites.SeriesId.Any())
+            {
+                return Ok(new List<object>());
+            }
+
+            var seriesDetails = new List<object>();
+
+            foreach (var seriesId in favorites.SeriesId)
+            {
+                var seriesUrl = $"{_baseUrl}/tv/{seriesId}?api_key={_apiKey}&language=en-US";
+
+                try
+                {
+                    var response = await _httpClient.GetAsync(seriesUrl);
+                    response.EnsureSuccessStatusCode();
+                    var jsonResponse = await response.Content.ReadAsStringAsync();
+                    var seriesData = JsonSerializer.Deserialize<SeriesDetailsResponse>(jsonResponse);
+
+                    if (seriesData != null)
+                    {
+                        seriesDetails.Add(new
+                        {
+                            Id = seriesData.Id,
+                            Title = seriesData.Name,
+                            Poster = seriesData.PosterPath
+                        });
+                    }
+                }
+                catch (HttpRequestException)
+                {
+                    continue;
+                }
+            }
+
+            return Ok(seriesDetails);
+        }
     }
 }
