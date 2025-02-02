@@ -6,6 +6,8 @@ import RegisterView from "@/views/Auth/RegisterView.vue";
 import Cookies from "js-cookie";
 import SearchView from "@/views/SearchView.vue";
 import MainPage from "@/views/Forum/MainPage.vue";
+import MovieCalendarView from "@/views/Movies/MovieCalendarView.vue";
+import FavoritesView from "@/views/FavoritesView.vue";
 
 const requireAuth = (to, from, next) => {
   const isAuthenticated =
@@ -58,7 +60,6 @@ const routes = [
     component: SearchView,
     beforeEnter: requireAuth,
   },
-
   {
     path: "/Forum",
     name: "Forum",
@@ -66,9 +67,15 @@ const routes = [
     beforeEnter: requireAuth,
   },
   {
-    path: "/forum/:id",
-    name: "post-details",
-    component: () => import("@/views/Forum/_id.vue"),
+    path: "/movies/calendar",
+    name: "Movies Premieres",
+    component: MovieCalendarView,
+    beforeEnter: requireAuth,
+  },
+  {
+    path: "/favorites",
+    name: "Favorites",
+    component: FavoritesView,
     beforeEnter: requireAuth,
   },
 ];

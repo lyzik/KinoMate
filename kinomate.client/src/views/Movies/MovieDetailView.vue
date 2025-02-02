@@ -14,7 +14,18 @@
         </v-col>
         <v-col cols="12" md="7">
           <h1 class="text-h3 font-weight-bold text-white">{{ movie.title }}</h1>
-
+          <div class="d-flex align-center mb-3">
+            <v-btn class="mr-3 my-5" icon @click="toggleFavorite" style="background-color: transparent;">
+              <v-icon :color="movie.isFavorite ? 'red' : 'white'">
+                {{ movie.isFavorite ? "mdi-heart" : "mdi-heart-outline" }}
+              </v-icon>
+            </v-btn>
+            <v-btn icon @click="toggleNotification"  style="background-color: transparent;">
+              <v-icon :color="movie.hasNotification ? 'yellow' : 'white'">
+                {{ movie.hasNotification ? "mdi-bell" : "mdi-bell-outline" }}
+              </v-icon>
+            </v-btn>
+          </div>
           <div class="movie-details text-white">
             <p class="text-subtitle-1">
               <strong>Release Date:</strong> {{ movie.release_date }}
@@ -239,6 +250,24 @@ export default {
     extractVideoId(url) {
       const match = url.match(/(?:youtube\.com\/.*v=|youtu\.be\/)([^&]+)/);
       return match ? match[1] : "";
+    },
+    async toggleFavorite() {
+      try {
+        await httpClient.post(`/api/Data/toggleFavoriteMovie/${this.movie.id}`);
+        this.movie.isFavorite = !this.movie.isFavorite;
+      } catch (error) {
+        console.error("Error toggling favorite:", error);
+      }
+    },
+    async toggleNotification() {
+      try {
+        await httpClient.post(
+          `/api/Data/toggleMovieNotification/${this.movie.id}`
+        );
+        this.movie.hasNotification = !this.movie.hasNotification;
+      } catch (error) {
+        console.error("Error toggling notification:", error);
+      }
     },
   },
 };

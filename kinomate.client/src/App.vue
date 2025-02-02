@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-app-bar app :color="'rgba(0, 0, 0, 0.0)'" class="pl-2" flat>
+    <v-app-bar app :color="'rgba(0, 0, 0, 0.35)'" class="pl-2" flat>
       <v-toolbar-title class="d-flex align-center">
         <router-link to="/" class="logo-link">
           <v-img
@@ -14,6 +14,8 @@
       </v-toolbar-title>
       <v-spacer></v-spacer>
       <template v-if="isLoggedIn">
+        <v-btn text to="/favorites">Favorites</v-btn>
+        <v-btn text to="/movies/calendar">Movies Calendar</v-btn>
         <v-btn text to="/forum">Forum</v-btn>
         <v-btn text to="/search">Search</v-btn>
         <v-btn text to="/user">
@@ -71,6 +73,9 @@ export default {
   methods: {
     ...mapActions(["fetchUserInfo", "logout"]),
     logout() {
+      Cookies.remove("user");
+      Cookies.remove("token");
+      localStorage.setItem("introSeen", "false");
       this.$store.dispatch("logout");
       this.$router.push("/login");
     },

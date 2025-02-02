@@ -87,6 +87,8 @@ namespace KinoMate.server.Models
         public List<CommentsResponse> Comments { get; set; }
         public string StreamingLink { get; set; }
         public List<StreamingPlatform> StreamingPlatforms { get; set; }
+        public bool IsFavorite { get; set; }
+        public bool HasNotification { get; set; }
 
     }
 

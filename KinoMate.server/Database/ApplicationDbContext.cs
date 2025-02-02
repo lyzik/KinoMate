@@ -1,4 +1,5 @@
 ﻿using KinoMate.server.Database.Auth;
+using KinoMate.server.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace KinoMate.server.Database
@@ -10,6 +11,7 @@ namespace KinoMate.server.Database
         public DbSet<ForumPost> ForumPost { get; set; }
         public DbSet<PostLike> PostLike { get; set; }
         public DbSet<PostComments> PostComments { get; set; }
+        public DbSet<Favorites> Favorites { get; set; }
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {

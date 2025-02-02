@@ -1,7 +1,6 @@
 ﻿using KinoMate.server.Database;
 using KinoMate.server.Database.Auth;
 using KinoMate.server.Models;
-using KinoMate.server.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -66,7 +65,7 @@ namespace KinoMate.server.Controllers
 
 
             EmailServices emailServices = new EmailServices();
-            emailServices.SendEmailAsync(model.Email,"Kinomate - Account has been created", "Thank you for register on our website.", null);
+            emailServices.SendEmailAsync(model.Email, "Welcome to KinoMate!", "EmailConfirm", null);
 
             return Ok("The user has been successfully registered.");
         }
@@ -127,6 +126,22 @@ namespace KinoMate.server.Controllers
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+        [AllowAnonymous]
+        [HttpPost("sendemail")]
+        public async Task<IActionResult> SendEmail([FromBody] SendEmailModel model)
+        {
+            EmailServices emailServices = new EmailServices();
+            emailServices.SendEmailAsync(model.Email, model.Subject, "EmailConfirm", null);
+            return Ok("Email has been sent.");
+        }
+
+        public class SendEmailModel
+        {
+            public string Email { get; set; }
+            public string Subject { get; set; }
+            public string Message { get; set; }
+        }
+
         public class ChangePasswordModel
         {
             public string CurrentPassword {get;set;}

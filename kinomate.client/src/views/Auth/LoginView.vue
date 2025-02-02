@@ -70,6 +70,7 @@ export default {
           username: this.username,
           password: this.password,
         });
+        localStorage.setItem("introSeen", "false");
         this.$router.push("/");
       } catch (error) {
         console.error("Login error:", error);
