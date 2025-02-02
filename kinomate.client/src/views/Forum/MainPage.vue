@@ -15,42 +15,29 @@
         </v-card-title>
         <v-card-text>
           <v-form ref="form">
-            <v-text-field
-              v-model="newPost.title"
-              label="Tytuł"
-              required
-            ></v-text-field>
-            <v-textarea
-              v-model="newPost.description"
-              label="Opis"
-              required
-            ></v-textarea>
+            <v-text-field v-model="newPost.title" label="Tytuł" required></v-text-field>
+            <v-textarea v-model="newPost.description" label="Opis" required></v-textarea>
           </v-form>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="blue darken-1" text @click="dialog = false"
-            >Anuluj</v-btn
-          >
+          <v-btn color="blue darken-1" text @click="dialog = false">Anuluj</v-btn>
           <v-btn color="blue darken-1" text @click="addPost">Dodaj</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <v-progress-linear
-      v-if="isLoading"
-      indeterminate
-      color="blue darken-1"
-    ></v-progress-linear>
+
+    <v-progress-linear v-if="isLoading" indeterminate color="blue darken-1"></v-progress-linear>
+
     <v-list>
-      <v-list-item v-for="post in posts" :key="post.id">
+      <v-list-item v-for="post in posts" :key="post.id" @click="goToPost(post.id)" class="clickable">
         <v-list-item-content>
-          <v-list-item-title class="font-weight-bold mb-2">{{
-            post.title
-          }}</v-list-item-title>
-          <v-list-item-subtitle class="text--secondary mb-2"
-            >Created by: {{ post.username }} |
-            {{ formatDate(post.createdAt) }}</v-list-item-subtitle
-          >
+          <v-list-item-title class="font-weight-bold mb-2">
+            {{ post.title }}
+          </v-list-item-title>
+          <v-list-item-subtitle class="text--secondary mb-2">
+            Created by: {{ post.username }} | {{ formatDate(post.createdAt) }}
+          </v-list-item-subtitle>
         </v-list-item-content>
         <v-list-item-action class="mb-4">
           <v-icon class="mr-3">mdi-thumb-up</v-icon>
@@ -59,11 +46,8 @@
         <v-divider></v-divider>
       </v-list-item>
     </v-list>
-    <v-pagination
-      v-model="page"
-      :length="totalPages"
-      @update:model-value="fetchPosts"
-    ></v-pagination>
+
+    <v-pagination v-model="page" :length="totalPages" @update:model-value="fetchPosts"></v-pagination>
   </v-container>
 </template>
 
@@ -118,6 +102,9 @@ export default {
       const options = { year: "numeric", month: "numeric", day: "numeric" };
       return new Date(date).toLocaleDateString(undefined, options);
     },
+    goToPost(postId) {
+      this.$router.push(`/forum/${postId}`);
+    },
   },
   created() {
     this.fetchPosts();
@@ -126,6 +113,9 @@ export default {
 </script>
 
 <style scoped>
+.clickable {
+  cursor: pointer;
+}
 .font-weight-bold {
   font-weight: bold;
 }

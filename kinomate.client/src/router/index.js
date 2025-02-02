@@ -78,6 +78,12 @@ const routes = [
     component: FavoritesView,
     beforeEnter: requireAuth,
   },
+  {
+    path: "/forum/:id",
+    name: "forumdetails-id",
+    component: () => import("@/views/Forum/_id.vue"),
+    beforeEnter: requireAuth,
+  },
 ];
 
 const router = createRouter({

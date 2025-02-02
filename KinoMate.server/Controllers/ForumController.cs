@@ -93,8 +93,8 @@ namespace KinoMate.server.Controllers
             });
         }
 
-        [HttpGet("getPost")]
-        public async Task<IActionResult> GetPost([FromQuery] int postId)
+        [HttpGet("getPost/{postId}")]
+        public async Task<IActionResult> GetPost(int postId)
         {
             var post = _context.ForumPost
                 .Where(p => p.Id == postId)
@@ -121,13 +121,19 @@ namespace KinoMate.server.Controllers
                     {
                         c.Id,
                         c.UserId,
+                        Username = _context.Users
+                            .Where(u => u.Id == c.UserId)
+                            .Select(u => u.Username)
+                            .FirstOrDefault(),
                         c.Description,
                         c.CreatedAt
                     })
+                    .ToList()
             };
 
             return Ok(response);
         }
+
         [HttpPost("likePost")]
         public async Task<IActionResult> LikePost([FromBody] PostLikeRequest like)
         {
